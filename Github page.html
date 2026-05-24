@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <title>Fullscreen Video | Minimal Player</title>
+  <style>
+    /* ----- RESET & GLOBAL ----- */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* remove any scrollbars — full-screen commitment */
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;        /* kill unwanted scrollbars */
+      background: #0a0a0a;     /* deep dark fallback */
+    }
+
+    body {
+      /* flex fallback (container will also flex) */
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* MAIN VIDEO CONTAINER — occupies full viewport, no overflow */
+    .video-stage {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at 30% 20%, #141414, #000000);
+      /* subtle animated grain? not needed, but modern background */
+      transition: background 0.2s ease;
+    }
+
+    /* VIDEO ELEMENT — fully responsive, preserves aspect ratio, centered */
+    .fullscreen-video {
+      display: block;
+      width: auto;
+      height: auto;
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;      /* no crop, letterbox/pillarbox styled */
+      border-radius: 24px;
+      box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.05);
+      transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1), box-shadow 0.2s;
+      cursor: pointer;
+    }
+
+    /* subtle hover effect (desktop) — retains elegance */
+    @media (hover: hover) {
+      .fullscreen-video:hover {
+        box-shadow: 0 30px 55px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.1);
+        transform: scale(1.01);
+      }
+    }
+
+    /* optional focus outline for accessibility */
+    .fullscreen-video:focus-visible {
+      outline: 2px solid #ffffff88;
+      outline-offset: 4px;
+      border-radius: 28px;
+    }
+
+    /* custom style for controls: modern browsers keep native but background overlay fine */
+    /* ensure video controls are fully accessible and on top */
+    .fullscreen-video::-webkit-media-controls-panel {
+      background-image: linear-gradient(to top, rgba(0,0,0,0.7), rgba(0,0,0,0.3));
+      border-radius: 14px;
+    }
+
+    /* make sure no unwanted spacing / margin on any parent */
+    .video-stage,
+    body,
+    html {
+      margin: 0;
+      padding: 0;
+    }
+
+    /* optional minimal decorative text (still keeps clean, but informative) 
+       absolutely positioned but does NOT interfere with video interaction */
+    .credits {
+      position: absolute;
+      bottom: 18px;
+      right: 22px;
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, sans-serif;
+      font-size: 12px;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.55);
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(6px);
+      padding: 6px 12px;
+      border-radius: 60px;
+      letter-spacing: 0.3px;
+      pointer-events: none;    /* never blocks video controls */
+      z-index: 2;
+      transition: opacity 0.2s;
+      font-feature-settings: 'ss01';
+    }
+
+    .credits a {
+      color: rgba(255, 255, 255, 0.85);
+      text-decoration: none;
+      pointer-events: auto;     /* only link can be clicked, but not disturbing video */
+      border-bottom: 1px dotted rgba(255,255,255,0.4);
+      transition: color 0.2s;
+    }
+
+    .credits a:hover {
+      color: white;
+      border-bottom-color: white;
+    }
+
+    /* optional small helper text on the left side (non-intrusive) */
+    .hint {
+      position: absolute;
+      bottom: 18px;
+      left: 22px;
+      font-family: system-ui, -apple-system, 'Segoe UI', monospace;
+      font-size: 11px;
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(4px);
+      padding: 5px 12px;
+      border-radius: 28px;
+      color: #bcbcbc;
+      letter-spacing: 0.2px;
+      pointer-events: none;
+      font-weight: 450;
+      z-index: 2;
+    }
+
+    /* responsive fine-tune for very small devices: ensure border radius still nice */
+    @media (max-width: 640px) {
+      .fullscreen-video {
+        border-radius: 12px;
+      }
+      .credits, .hint {
+        font-size: 9px;
+        padding: 4px 10px;
+      }
+    }
+
+    /* remove any iframe-like margins, everything seamless */
+  </style>
+</head>
+<body>
+  <div class="video-stage">
+    <!-- HTML5 VIDEO TAG with all required attributes:
+         - controls: standard playback UI (play, pause, volume, fullscreen)
+         - preload="auto": optimal buffering
+         - playsinline: prevents forced fullscreen on mobile (iOS/Android)
+         - src: placeholder SAMPLE MP4 (easily replaceable)
+    -->
+    <video 
+      class="fullscreen-video" 
+      controls 
+      preload="auto" 
+      playsinline
+      aria-label="Fullscreen video player with controls"
+    >
+      <!-- PLACEHOLDER VIDEO URL: replace 'src' attribute with your own MP4 file path.
+           The current URL is a reliable, publicly accessible sample video from Google's test bucket.
+           To swap: change the src value below to your own video endpoint (e.g., 'videos/my-demo.mp4') -->
+      <source src="/Users/kunalkargane/Desktop/Website /Presentation.mov" type="video/mp4">
+      <!-- Fallback text for unsupported browsers -->
+      Your browser does not support the HTML5 video tag. Please update to a modern browser.
+    </video>
+
+    <!-- Minimal overlay info: completely non-blocking, only for context and source hint -->
+    <div class="credits">
+      🎬 placeholder sample · <a href="#" onclick="return false;" style="cursor:default;" title="Replace the src attribute in the &lt;video&gt; tag">swap video URL</a>
+    </div>
+    <div class="hint">
+      ⚡ controls · fullscreen ready
+    </div>
+  </div>
+
+  <!-- optional small script to ensure any accidental body scroll gets eliminated (safeguard) -->
+  <script>
+    (function() {
+      // double‑safety: ensure no scrollbars ever appear, even after orientation changes
+      const enforceNoScroll = () => {
+        document.documentElement.style.overflow = 'hidden';
+        document.body.style.overflow = 'hidden';
+        // also ensure that any potential margin/padding from external factors is reset
+        document.body.style.margin = '0';
+        document.body.style.padding = '0';
+        document.documentElement.style.margin = '0';
+        document.documentElement.style.padding = '0';
+      };
+      
+      enforceNoScroll();
+      window.addEventListener('resize', () => {
+        // After resize (especially on mobile orientation change) keep overflow hidden
+        enforceNoScroll();
+      });
+      
+      // simple interactive but non-disruptive: hint about video src replacement (console only)
+      console.log(
+        '🎬 Fullscreen video player ready.\n🔁 To replace placeholder video: edit the <video> tag src attribute (or <source>).\n✅ All requirements: fullscreen responsive, controls, preload="auto", playsinline, dark minimalist background.'
+      );
+      
+      // optional: small accessibility fix — make video focus more visible on tab
+      const videoEl = document.querySelector('.fullscreen-video');
+      if (videoEl) {
+        videoEl.setAttribute('tabindex', '0');
+      }
+    })();
+  </script>
+</body>
+</html>
